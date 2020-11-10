@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Set List JSON</title>
+<style>
+	
+	h3 {
+		font-size: 20px;
+		margin-bottom: 0px;
+	}
+	
+</style>
+
+<script>
+	function getSetlist() {
+		/* Step 1: Make instance of request object...
+		...to make HTTP request after page is loaded*/
+		request = new XMLHttpRequest();
+		console.log("1 - request object created");
+
+		// Step 2: Set the URL for the AJAX request to be the JSON file
+
+	request.open("GET", "https://ifreed01.github.io/Set-List-JSON/SetList.json", true)
+
+		console.log("2 - opened request file");
+
+		// Step 3: set up event handler/callback
+
+		request.onreadystatechange = function() {
+			console.log("3 - readystatechange event fired.");
+
+			if (request.readyState == 4 && request.status == 200) {
+
+				// Step 5: wait for done + success
+				console.log("5 - response received");
+				
+				result = request.responseText;
+				var parseSetList = "", strSetList = "", songs = "";
+				
+				// serliaze data
+				parseSetList = JSON.parse(result);
+				strSetList = JSON.stringify(parseSetList);
+				document.getElementById("str").innerHTML = strSetList;
+				
+				// dsplay all songs
+				function showAll(){
+					songs = "";
+					parseSetList.forEach(function myFunction(song) {
+						songs += "<h3>" + song.title + "</h3>";
+						songs += "Artist: " + song.artist + "<br>";
+						songs += "Genre: " + song.genre + "<br>";
+						songs += "Released " + song.year + "<br><br>";
+						return songs;
+					})
+					
+					document.getElementById("data").innerHTML = songs;
+				}
+				
+				//showAll();
+				
+				var filteredSongs = "";
+				
+				// filter songs based on dropdown select 
+				document.getElementById("filter").addEventListener("click", function(){
+					if (document.getElementById("genres").value == "All Genres") {
+						showAll();
+					} else {
+						var genreFilter = document.getElementById("genres").value;
+						filteredSongs = "";
+						for (var x in parseSetList) {
+							for (var y in parseSetList[x].genre) {
+								if (parseSetList[x].genre[y] == genreFilter) {
+									filteredSongs += "<h3>" + parseSetList[x].title + "</h3>";
+									filteredSongs += "Artist: " + parseSetList[x].artist + "<br>";
+									filteredSongs += "Genre: " + parseSetList[x].genre + "<br>";
+									filteredSongs += "Released " + parseSetList[x].year + "<br><br>";									
+								}
+							}
+						}
+						document.getElementById("data").innerHTML = filteredSongs;
+					}
+				})
+				
+
+			}
+
+		}
+	// Step 4: fire off the HTTP request
+		request.send();
+		console.log("4 - Request sent");
+	}
+</script>
+</head>
+
+<body onload="getSetlist()">
+
+<h1>Set List</h1>
+	
+<form>
+
+	<select id="genres">
+	<option>All Genres</option>
+	<option>Pop</option>
+	<option>Rap</option>
+	<option>RnB</option>
+	<option>Rock</option>
+	<option>Country</option>
+	<option>Dance</option>
+	<option>Electronic</option>
+	<option>Soul</option>
+	</select>
+	<input type="button" id="filter" value="Filter"></button>
+	<br><br>
+	
+</form>
+<div id="str"></div>
+<div id="data"></div>
+</body>
+</html>
